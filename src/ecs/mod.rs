@@ -1,4 +1,9 @@
 pub mod combat;
+pub mod combat;
+pub mod components;
+pub mod resources;
+pub mod systems;
+pub mod init;
 
 use bevy_ecs::prelude::*;
 use glam::Vec2;

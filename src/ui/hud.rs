@@ -186,7 +186,7 @@ impl Hud {
         // Update action panel based on selection
         self.update_action_panel();
     }
-    
+
     fn update_action_panel(&mut self) {
         // Clear current buttons
         self.action_panel.buttons.clear();
@@ -249,6 +249,45 @@ impl Hud {
             if let Some(ref building) = self.building_info_panel.selected_building {
                 match building.building_type {
                     BuildingType::Headquarters => {
+                        self.action_panel.buttons.push(ActionButton {
+                            position: Vec2::new(0.0, 0.0), // Relative to panel
+                            size: Vec2::new(32.0, 32.0),
+                            visible: true,
+                            action_type: ActionType::Train(UnitType::Worker),
+                            enabled: true,
+                            tooltip: "Train Worker".to_string(),
+                        });
+                    }
+                    BuildingType::Barracks => {
+                        self.action_panel.buttons.push(ActionButton {
+                            position: Vec2::new(0.0, 0.0), // Relative to panel
+                            size: Vec2::new(32.0, 32.0),
+                            visible: true,
+                            action_type: ActionType::Train(UnitType::Soldier),
+                            enabled: true,
+                            tooltip: "Train Soldier".to_string(),
+                        });
+                        
+                        self.action_panel.buttons.push(ActionButton {
+                            position: Vec2::new(36.0, 0.0), // Relative to panel
+                            size: Vec2::new(32.0, 32.0),
+                            visible: true,
+                            action_type: ActionType::Train(UnitType::Scout),
+                            enabled: true,
+                            tooltip: "Train Scout".to_string(),
+                        });
+                    }
+                    BuildingType::Factory => {
+                        self.action_panel.buttons.push(ActionButton {
+                            position: Vec2::new(0.0, 0.0), // Relative to panel
+                            size: Vec2::new(32.0, 32.0),
+                            visible: true,
+                            action_type: ActionType::Train(UnitType::Tank),
+                            enabled: true,
+                            tooltip: "Train Tank".to_string(),
+                        });
+                    }
+                    BuildingType::ResearchCenter => {
                         self.action_panel.buttons.push(ActionButton {
                             position: Vec2::new(0.0, 0.0), // Relative to panel
                             size: Vec2::new(32.0, 32.0),
@@ -458,43 +497,3 @@ impl Hud {
         // In a real implementation, this would render all command buttons
     }
 }
-
-                            action_type: ActionType::Train(UnitType::Worker),
-                            enabled: true,
-                            tooltip: "Train Worker".to_string(),
-                        });
-                    }
-                    BuildingType::Barracks => {
-                        self.action_panel.buttons.push(ActionButton {
-                            position: Vec2::new(0.0, 0.0), // Relative to panel
-                            size: Vec2::new(32.0, 32.0),
-                            visible: true,
-                            action_type: ActionType::Train(UnitType::Soldier),
-                            enabled: true,
-                            tooltip: "Train Soldier".to_string(),
-                        });
-                        
-                        self.action_panel.buttons.push(ActionButton {
-                            position: Vec2::new(36.0, 0.0), // Relative to panel
-                            size: Vec2::new(32.0, 32.0),
-                            visible: true,
-                            action_type: ActionType::Train(UnitType::Scout),
-                            enabled: true,
-                            tooltip: "Train Scout".to_string(),
-                        });
-                    }
-                    BuildingType::Factory => {
-                        self.action_panel.buttons.push(ActionButton {
-                            position: Vec2::new(0.0, 0.0), // Relative to panel
-                            size: Vec2::new(32.0, 32.0),
-                            visible: true,
-                            action_type: ActionType::Train(UnitType::Tank),
-                            enabled: true,
-                            tooltip: "Train Tank".to_string(),
-                        });
-                    }
-                    BuildingType::ResearchCenter => {
-                        self.action_panel.buttons.push(ActionButton {
-                            position: Vec2::new(0.0, 0.0), // Relative to panel
-                            size: Vec2::new(32.0, 32.0),
-                            visible: true,
