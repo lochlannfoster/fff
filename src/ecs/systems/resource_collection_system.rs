@@ -1,5 +1,3 @@
-// src/ecs/systems/resource_collection_system.rs
-
 use bevy_ecs::prelude::*;
 use glam::Vec2;
 

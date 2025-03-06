@@ -3,6 +3,7 @@ pub mod input;
 pub mod time;
 pub mod audio;
 pub mod assets;
+pub mod camera;
 
 use anyhow::Result;
 use bevy_ecs::prelude::*;
@@ -13,8 +14,9 @@ use winit::{
 };
 
 use crate::ecs;
-use crate::ecs::resources::DamageTable;
-use crate::ecs::systems::combat::combat_system;
+use crate::ecs::init;
+use crate::ecs::systems::combat::components::DamageTable;
+use crate::ecs::systems::combat_system;
 use crate::game::GameState;
 use crate::networking::lockstep::LockstepNetwork;
 use crate::ui::UiManager;
@@ -53,7 +55,7 @@ impl Engine {
         );
         
         // Initialize ECS world
-        let mut world = ecs::init_world();
+        let mut world = ecs::init::init_world();
         
         // Add combat-specific resources
         world.insert_resource(DamageTable::default());
@@ -137,6 +139,7 @@ impl Engine {
         self.asset_manager.load_texture("ui_minimap_frame", "ui/minimap_frame.png")?;
         
         // Load sounds
+        self.asset_manager.load_sound("sfx_click", "sfx/click.wav")?
         self.asset_manager.load_sound("sfx_click", "sfx/click.wav")?;
         self.asset_manager.load_sound("sfx_select", "sfx/select.wav")?;
         self.asset_manager.load_sound("sfx_move", "sfx/move.wav")?;
@@ -170,7 +173,6 @@ impl Engine {
                         let mouse_pos = self.input_handler.get_mouse_position();
                         if self.ui_manager.handle_input(mouse_pos) {
                             // UI handled the click, no need to forward to game
-                            continue;
                         }
                     }
                 }
@@ -233,13 +235,13 @@ impl Engine {
         let mut schedule = Schedule::default();
         
         // Add systems to the schedule in the desired order
-        schedule.add_system(ecs::systems::update_movement_system);
-        schedule.add_system(ecs::systems::collision_detection_system);
-        schedule.add_system(ecs::systems::unit_behavior_system);
+        schedule.add_system(ecs::update_movement_system);
+        schedule.add_system(ecs::collision_detection_system);
+        schedule.add_system(ecs::unit_behavior_system);
         schedule.add_system(ecs::systems::building_production_system);
         schedule.add_system(ecs::systems::resource_collection_system);
         schedule.add_system(ecs::systems::economy_system);
-        schedule.add_system(ecs::systems::fog_of_war_system);
+        schedule.add_system(ecs::fog_of_war_system);
         schedule.add_system(combat_system);
         
         // Run the schedule
@@ -253,10 +255,10 @@ impl Engine {
     
     fn render(&mut self) -> Result<()> {
         // Render game world
-        self.renderer.render(&self.world)?;
+        self.renderer.render(&self.world, &self.ui_manager)?;
         
         // Render UI on top
-        self.renderer.render_ui(&self.ui_manager)?;
+        // In a real implementation, this might be handled differently
         
         Ok(())
     }
