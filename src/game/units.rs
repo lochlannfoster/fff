@@ -107,6 +107,7 @@ pub fn can_train_unit(
     true
 }
 
+// SPLIT 1
 /// Spawn a new unit entity
 pub fn spawn_unit(
     commands: &mut Commands,
@@ -144,7 +145,7 @@ pub fn spawn_unit(
         Collider {
             radius: match params.unit_type {
                 UnitType::Tank => 8.0,
-                UnitType::Worker => 4.0,
+                UnitType::Worker | UnitType::Healer => 4.0,
                 _ => 5.0,
             },
             collision_layer: 1, // Unit layer
@@ -169,7 +170,8 @@ pub fn spawn_unit(
     Some(entity)
 }
 
-/// Calculate unit stats with tech effects applied
+// SPLIT 2
+/// Calculate unit stats with tech effects applied  
 fn calculate_unit_stats(
     unit_type: UnitType, 
     tech_state: &TechState, 
@@ -181,7 +183,7 @@ fn calculate_unit_stats(
                 30.0,   // Health
                 3.0,    // Attack damage
                 10.0,   // Attack range
-                1.0,    // Attack speed
+                1.0,    // Attack speed  
                 80.0,   // Movement speed
                 100.0,  // Sight range
             ),
@@ -191,7 +193,7 @@ fn calculate_unit_stats(
                 50.0,   // Attack range
                 0.8,    // Attack speed
                 60.0,   // Movement speed
-                120.0,  // Sight range
+                120.0,  // Sight range  
             ),
             UnitType::Scout => (
                 40.0,   // Health
@@ -238,7 +240,7 @@ fn calculate_unit_stats(
         tech_state, 
         player_id, 
         base_range, 
-        TechEffectType::UnitAttackRange
+        TechEffectType::UnitAttackRange  
     );
 
     let attack_speed = apply_tech_effect(
@@ -265,6 +267,7 @@ fn calculate_unit_stats(
     (health, damage, attack_range, attack_speed, movement_speed, sight_range)
 }
 
+// SPLIT 3
 /// System to handle unit behavior and AI
 pub fn unit_behavior_system(
     mut commands: Commands,
@@ -342,7 +345,7 @@ pub fn unit_behavior_system(
                         continue;
                     }
                     
-                    // Calculate health percentage
+                    // Calculate health percentage  
                     let health_percentage = friendly_unit.health / friendly_unit.max_health;
                     
                     // Calculate distance
@@ -361,7 +364,7 @@ pub fn unit_behavior_system(
                         target_entity: heal_target,
                     });
                     
-                    // Move to target if not in heal range
+                    // Move to target if not in heal range  
                     if let Some(mut movement) = movement {
                         let target_transform = world.get::<Transform>(heal_target).unwrap();
                         let distance = (target_transform.position - transform.position).length();
@@ -377,6 +380,7 @@ pub fn unit_behavior_system(
     }
 }
 
+// SPLIT 4
 /// Helper function to find the closest enemy
 fn find_closest_enemy(
     position: Vec2,

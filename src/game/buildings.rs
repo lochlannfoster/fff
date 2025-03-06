@@ -47,6 +47,7 @@ impl BuildingData {
         costs
     }
     
+    // SPLIT 1
     /// Headquarters building data
     pub fn headquarters() -> Self {
         Self {
@@ -89,6 +90,7 @@ impl BuildingData {
         }
     }
     
+    // SPLIT 2
     /// Factory building data
     pub fn factory() -> Self {
         Self {
@@ -152,6 +154,7 @@ impl BuildingData {
         }
     }
     
+    // SPLIT 3  
     /// Defense tower building data
     pub fn defense_tower() -> Self {
         Self {
