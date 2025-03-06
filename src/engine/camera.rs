@@ -105,4 +105,39 @@ impl CameraController {
             view_height: self.view_height,
         }
     }
+    
+    /// Calculate the view-projection matrix for rendering
+    pub fn calculate_view_projection_matrix(&self) -> glam::Mat4 {
+        // First, create orthographic projection matrix
+        let left = -self.view_width / (2.0 * self.zoom);
+        let right = self.view_width / (2.0 * self.zoom);
+        let bottom = self.view_height / (2.0 * self.zoom);
+        let top = -self.view_height / (2.0 * self.zoom);
+        
+        let ortho = glam::Mat4::orthographic_rh(left, right, bottom, top, -1.0, 1.0);
+        
+        // Then, create view matrix (camera transform)
+        let view = glam::Mat4::from_translation(glam::Vec3::new(-self.position.x, -self.position.y, 0.0));
+        
+        // Combine for view-projection matrix
+        ortho * view
+    }
+    
+    /// Get visible world bounds
+    pub fn get_visible_bounds(&self) -> (Vec2, Vec2) {
+        let half_view_width = self.view_width / (2.0 * self.zoom);
+        let half_view_height = self.view_height / (2.0 * self.zoom);
+        
+        let min = Vec2::new(
+            self.position.x - half_view_width,
+            self.position.y - half_view_height,
+        );
+        
+        let max = Vec2::new(
+            self.position.x + half_view_width,
+            self.position.y + half_view_height,
+        );
+        
+        (min, max)
+    }
 }

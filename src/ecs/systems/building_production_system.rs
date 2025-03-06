@@ -1,10 +1,11 @@
+// src/ecs/systems/building_production_system.rs
+
 use bevy_ecs::prelude::*;
 use std::collections::VecDeque;
-use glam::Vec2;
 
 use crate::ecs::components::{Building, BuildingType, UnitType, Transform, Owner};
 use crate::ecs::resources::{GameTime, PlayerResources, TechState};
-use crate::game::units::{spawn_unit, UnitSpawnParams};
+use crate::game::{buildings::BuildingData, units::spawn_unit};
 
 pub fn building_production_system(
     mut commands: Commands,
@@ -17,7 +18,7 @@ pub fn building_production_system(
         // Skip buildings that are still under construction
         if let Some(construction_progress) = &mut building.construction_progress {
             // Update construction progress
-            *construction_progress += time.delta_time / crate::game::buildings::BuildingData::get(building.building_type).build_time;
+            *construction_progress += time.delta_time / BuildingData::get(building.building_type).build_time;
             
             if *construction_progress >= 1.0 {
                 // Construction complete
@@ -48,19 +49,17 @@ pub fn building_production_system(
                     // Production complete, spawn the unit
                     if let Some(unit_type) = building.production_queue.pop_front() {
                         // Calculate spawn position
-                        let spawn_offset = if let Some(rally_point) = building.rally_point {
-                            let direction = (rally_point - transform.position).normalize_or_zero();
-                            direction * 15.0
-                        } else {
-                            Vec2::new(15.0, 0.0) // Default offset to the right
-                        };
+                        let spawn_offset = Vec2::new(
+                            building.rally_point.map_or(0.0, |p| p.x - transform.position.x),
+                            building.rally_point.map_or(0.0, |p| p.y - transform.position.y),
+                        ).normalize_or_zero() * 15.0;
                         
                         let spawn_pos = transform.position + spawn_offset;
                         
                         // Spawn the unit
                         spawn_unit(
                             &mut commands,
-                            UnitSpawnParams {
+                            crate::game::units::UnitSpawnParams {
                                 unit_type,
                                 owner: owner.0,
                                 position: spawn_pos,

@@ -1,6 +1,6 @@
 use bevy_ecs::prelude::*;
 use crate::ecs::resources::*;
-use crate::ecs::systems::combat::components::DamageTable;
+use crate::ecs::systems::combat::DamageTable;
 
 /// Initialize the ECS world with starting resources
 pub fn init_world() -> World {

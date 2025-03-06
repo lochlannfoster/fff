@@ -1,5 +1,6 @@
 pub mod hud;
 pub mod minimap;
+pub mod menus;
 
 use anyhow::Result;
 use glam::{Vec2, Vec4};
@@ -74,14 +75,12 @@ pub trait UiElement {
 
 // UI Pipeline for rendering UI elements
 pub struct UiPipeline {
-    pub device: Device,
-    pub queue: Queue,
-    pub pipeline: wgpu::RenderPipeline,
-    pub bind_group_layout: wgpu::BindGroupLayout,
-    pub text_atlas: Option<TextureAsset>,
-    pub ui_textures: HashMap<String, TextureAsset>,
-    pub vertex_buffer: wgpu::Buffer,
-    pub index_buffer: wgpu::Buffer,
+    device: Device,
+    queue: Queue,
+    pipeline: wgpu::RenderPipeline,
+    bind_group_layout: wgpu::BindGroupLayout,
+    text_atlas: Option<TextureAsset>,
+    ui_textures: HashMap<String, TextureAsset>,
 }
 
 impl UiPipeline {
@@ -186,30 +185,6 @@ impl UiPipeline {
             multiview: None,
         });
         
-        // Create basic vertex and index buffers
-        let vertices = [
-            UiVertex { position: [0.0, 0.0], tex_coords: [0.0, 0.0], color: [1.0, 1.0, 1.0, 1.0] },
-            UiVertex { position: [1.0, 0.0], tex_coords: [1.0, 0.0], color: [1.0, 1.0, 1.0, 1.0] },
-            UiVertex { position: [1.0, 1.0], tex_coords: [1.0, 1.0], color: [1.0, 1.0, 1.0, 1.0] },
-            UiVertex { position: [0.0, 1.0], tex_coords: [0.0, 1.0], color: [1.0, 1.0, 1.0, 1.0] },
-        ];
-        
-        let indices: [u16; 6] = [0, 1, 2, 0, 2, 3];
-        
-        use wgpu::util::DeviceExt;
-        
-        let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("UI Vertex Buffer"),
-            contents: bytemuck::cast_slice(&vertices),
-            usage: wgpu::BufferUsages::VERTEX,
-        });
-        
-        let index_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("UI Index Buffer"),
-            contents: bytemuck::cast_slice(&indices),
-            usage: wgpu::BufferUsages::INDEX,
-        });
-        
         Ok(Self {
             device,
             queue,
@@ -217,8 +192,6 @@ impl UiPipeline {
             bind_group_layout,
             text_atlas: None,
             ui_textures: HashMap::new(),
-            vertex_buffer,
-            index_buffer,
         })
     }
     
@@ -361,27 +334,5 @@ impl UiManager {
         
         // Update HUD layout
         self.hud.resize(width, height);
-    }
-    
-    pub fn clone(&self) -> Self {
-        // This is a simplified clone implementation that only clones essential fields
-        Self {
-            screen_size: self.screen_size,
-            ui_elements: HashMap::new(), // Empty - would need to clone elements in real impl
-            ui_pipeline: UiPipeline {
-                device: self.ui_pipeline.device.clone(), 
-                queue: self.ui_pipeline.queue.clone(),
-                pipeline: self.ui_pipeline.pipeline.clone(),
-                bind_group_layout: self.ui_pipeline.bind_group_layout.clone(),
-                text_atlas: None, // Would need to clone in real impl
-                ui_textures: HashMap::new(), // Would need to clone in real impl
-                vertex_buffer: self.ui_pipeline.vertex_buffer.clone(),
-                index_buffer: self.ui_pipeline.index_buffer.clone(),
-            },
-            color_scheme: UiColorScheme::default(),
-            active_screen: self.active_screen.clone(),
-            hud: hud::Hud::new(), // Would need to clone in real impl
-            minimap: minimap::Minimap::new(), // Would need to clone in real impl
-        }
     }
 }

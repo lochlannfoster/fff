@@ -1,3 +1,5 @@
+// src/ecs/systems/economy_system.rs
+
 use bevy_ecs::prelude::*;
 use std::collections::HashMap;
 
