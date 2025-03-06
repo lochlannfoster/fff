@@ -5,8 +5,10 @@ use crate::ecs::components::{
     Unit, UnitType, Owner, Transform, Collider, 
     Movement, MinimapMarker, MinimapShape
 };
-use crate::ecs::resources::{TechState, TechEffectType};
+use crate::ecs::resources::{TechState, TechEffectType, PlayerResources};
 use crate::game::tech::{TechData, apply_tech_effect};
+use crate::game::buildings::BuildingData;
+use crate::ecs::components::{BuildingType, ResourceType};
 
 /// Unit spawn parameters
 pub struct UnitSpawnParams {
@@ -105,6 +107,57 @@ pub fn can_train_unit(
     }
 
     true
+}
+
+/// Check if a worker can build a specific building
+pub fn can_build_building(
+    unit: &Unit, 
+    building_type: BuildingType, 
+    player_resources: &PlayerResources,
+    player_id: u8,
+) -> bool {
+    // Ensure it's a worker
+    if unit.unit_type != UnitType::Worker {
+        return false;
+    }
+
+    // Get building costs
+    let building_data = BuildingData::get(building_type);
+    let costs = building_data.costs;
+
+    // Check resource availability
+    for (&resource_type, &cost) in &costs {
+        let current = player_resources.resources
+            .get(&(player_id, resource_type))
+            .copied()
+            .unwrap_or(0.0);
+        
+        if current < cost {
+            return false;
+        }
+    }
+
+    true
+}
+
+/// Check if a worker can repair a building
+pub fn can_repair_building(
+    worker: &Unit, 
+    building: &Building,
+    transform: &Transform,
+    worker_transform: &Transform,
+) -> bool {
+    // Check if unit is a worker
+    if worker.unit_type != UnitType::Worker {
+        return false;
+    }
+
+    // Check repair distance (e.g., 10 units)
+    let distance = (transform.position - worker_transform.position).length();
+    
+    // Check if building needs repair
+    distance <= 10.0 && 
+    building.health < building.max_health
 }
 
 // SPLIT 1

@@ -1,6 +1,6 @@
+use bevy_ecs::prelude::*;
 use glam::Vec2;
 use serde::{Deserialize, Serialize};
-use std::collections::HashSet;
 use winit::event::{ElementState, KeyboardInput, MouseButton, VirtualKeyCode, WindowEvent};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -24,6 +24,13 @@ pub enum Command {
     GroupSelect(u8),
     Pause,
     Resume,
+    
+    // New commands for enhanced worker control
+    RepairBuilding(Entity),
+    BuildBuilding {
+        building_type: BuildingType,
+        position: Vec2,
+    },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

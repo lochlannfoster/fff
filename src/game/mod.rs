@@ -3,7 +3,6 @@ pub mod buildings;
 pub mod tech;
 pub mod map;
 pub mod pathfinding;
-pub mod ai;
 
 use std::collections::HashMap;
 use glam::Vec2;
@@ -34,6 +33,28 @@ pub struct GameState {
     pub player_resources: HashMap<(u8, ResourceType), f32>,
     pub player_supply: HashMap<u8, (u32, u32)>, // (current, max) supply
     pub player_scores: HashMap<u8, u32>,
+    pub settings: GameSettings,
+}
+
+/// Game settings
+pub struct GameSettings {
+    pub fog_of_war_enabled: bool,
+    pub game_speed: f32,
+    pub auto_save_enabled: bool,
+    pub auto_save_interval: f32,
+    pub show_fps: bool,
+}
+
+impl Default for GameSettings {
+    fn default() -> Self {
+        Self {
+            fog_of_war_enabled: true,
+            game_speed: 1.0,
+            auto_save_enabled: false,
+            auto_save_interval: 300.0, // 5 minutes
+            show_fps: false,
+        }
+    }
 }
 
 impl GameState {
@@ -70,6 +91,7 @@ impl GameState {
             player_resources,
             player_supply,
             player_scores,
+            settings: GameSettings::default(),
         }
     }
     
