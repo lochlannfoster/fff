@@ -10,7 +10,7 @@ wgpu = "0.17"
 winit = "0.28"
 pollster = "0.3"         # For async to sync conversion in wgpu
 bytemuck = { version = "1.14", features = ["derive"] } # For GPU data conversion
-glam = "0.24"            # Math library for graphics
+glam = { version = "0.24", features = ["serde"] }
 image = "0.24"           # Image loading
 
 # ECS and game logic

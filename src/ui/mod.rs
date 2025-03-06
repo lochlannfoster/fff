@@ -4,15 +4,13 @@ pub mod menus;
 
 use anyhow::Result;
 use glam::{Vec2, Vec4};
-use wgpu::{Device, Queue, RenderPass};
+use wgpu::{Device, Queue, RenderPass, TextureFormat};
 use std::collections::HashMap;
 
 use crate::engine::assets::TextureAsset;
-use crate::ecs::resources::GameMap;
-use crate::ecs::components::ResourceType;
 use crate::game::GameState;
 
-// UI Element types
+/// UI Element types
 pub enum UiElementType {
     Button,
     Panel,
@@ -21,7 +19,7 @@ pub enum UiElementType {
     ProgressBar,
 }
 
-// UI Element alignment
+/// UI Element alignment
 pub enum UiAlignment {
     TopLeft,
     Top,
@@ -34,7 +32,8 @@ pub enum UiAlignment {
     BottomRight,
 }
 
-// UI color scheme
+/// UI color scheme
+#[derive(Clone)]
 pub struct UiColorScheme {
     pub background: Vec4,
     pub foreground: Vec4,
@@ -61,7 +60,7 @@ impl Default for UiColorScheme {
     }
 }
 
-// UI Element trait
+/// UI Element trait
 pub trait UiElement {
     fn get_type(&self) -> UiElementType;
     fn get_position(&self) -> Vec2;
@@ -73,7 +72,7 @@ pub trait UiElement {
     fn handle_click(&mut self, position: Vec2) -> bool;
 }
 
-// UI Pipeline for rendering UI elements
+/// UI Pipeline for rendering UI elements
 pub struct UiPipeline {
     device: Device,
     queue: Queue,
@@ -83,154 +82,7 @@ pub struct UiPipeline {
     ui_textures: HashMap<String, TextureAsset>,
 }
 
-impl UiPipeline {
-    pub fn new(device: Device, queue: Queue, surface_format: wgpu::TextureFormat) -> Result<Self> {
-        // Create bind group layout for textures
-        let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-            label: Some("UI Texture Bind Group Layout"),
-            entries: &[
-                // Texture binding
-                wgpu::BindGroupLayoutEntry {
-                    binding: 0,
-                    visibility: wgpu::ShaderStages::FRAGMENT,
-                    ty: wgpu::BindingType::Texture {
-                        sample_type: wgpu::TextureSampleType::Float { filterable: true },
-                        view_dimension: wgpu::TextureViewDimension::D2,
-                        multisampled: false,
-                    },
-                    count: None,
-                },
-                // Sampler binding
-                wgpu::BindGroupLayoutEntry {
-                    binding: 1,
-                    visibility: wgpu::ShaderStages::FRAGMENT,
-                    ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
-                    count: None,
-                },
-            ],
-        });
-        
-        // Create pipeline layout
-        let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-            label: Some("UI Pipeline Layout"),
-            bind_group_layouts: &[&bind_group_layout],
-            push_constant_ranges: &[],
-        });
-        
-        // Load shaders
-        let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("UI Shader"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("../../assets/shaders/ui.wgsl").into()),
-        });
-        
-        // Create render pipeline
-        let pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: Some("UI Render Pipeline"),
-            layout: Some(&pipeline_layout),
-            vertex: wgpu::VertexState {
-                module: &shader,
-                entry_point: "vs_main",
-                buffers: &[
-                    // Vertex layout
-                    wgpu::VertexBufferLayout {
-                        array_stride: std::mem::size_of::<UiVertex>() as wgpu::BufferAddress,
-                        step_mode: wgpu::VertexStepMode::Vertex,
-                        attributes: &[
-                            // Position
-                            wgpu::VertexAttribute {
-                                offset: 0,
-                                shader_location: 0,
-                                format: wgpu::VertexFormat::Float32x2,
-                            },
-                            // Texture coordinates
-                            wgpu::VertexAttribute {
-                                offset: 8,
-                                shader_location: 1,
-                                format: wgpu::VertexFormat::Float32x2,
-                            },
-                            // Color
-                            wgpu::VertexAttribute {
-                                offset: 16,
-                                shader_location: 2,
-                                format: wgpu::VertexFormat::Float32x4,
-                            },
-                        ],
-                    },
-                ],
-            },
-            fragment: Some(wgpu::FragmentState {
-                module: &shader,
-                entry_point: "fs_main",
-                targets: &[Some(wgpu::ColorTargetState {
-                    format: surface_format,
-                    blend: Some(wgpu::BlendState::ALPHA_BLENDING),
-                    write_mask: wgpu::ColorWrites::ALL,
-                })],
-            }),
-            primitive: wgpu::PrimitiveState {
-                topology: wgpu::PrimitiveTopology::TriangleList,
-                strip_index_format: None,
-                front_face: wgpu::FrontFace::Ccw,
-                cull_mode: Some(wgpu::Face::Back),
-                polygon_mode: wgpu::PolygonMode::Fill,
-                unclipped_depth: false,
-                conservative: false,
-            },
-            depth_stencil: None,
-            multisample: wgpu::MultisampleState {
-                count: 1,
-                mask: !0,
-                alpha_to_coverage_enabled: false,
-            },
-            multiview: None,
-        });
-        
-        Ok(Self {
-            device,
-            queue,
-            pipeline,
-            bind_group_layout,
-            text_atlas: None,
-            ui_textures: HashMap::new(),
-        })
-    }
-    
-    pub fn add_texture(&mut self, name: &str, texture: TextureAsset) {
-        self.ui_textures.insert(name.to_string(), texture);
-    }
-    
-    pub fn set_text_atlas(&mut self, texture: TextureAsset) {
-        self.text_atlas = Some(texture);
-    }
-    
-    pub fn create_bind_group(&self, texture: &TextureAsset) -> wgpu::BindGroup {
-        self.device.create_bind_group(&wgpu::BindGroupDescriptor {
-            label: Some("UI Texture Bind Group"),
-            layout: &self.bind_group_layout,
-            entries: &[
-                wgpu::BindGroupEntry {
-                    binding: 0,
-                    resource: wgpu::BindingResource::TextureView(&texture.view),
-                },
-                wgpu::BindGroupEntry {
-                    binding: 1,
-                    resource: wgpu::BindingResource::Sampler(&texture.sampler),
-                },
-            ],
-        })
-    }
-}
-
-// UI vertex data
-#[repr(C)]
-#[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
-pub struct UiVertex {
-    position: [f32; 2],
-    tex_coords: [f32; 2],
-    color: [f32; 4],
-}
-
-// UI Manager to handle all UI elements
+/// UI Manager to handle all UI elements
 pub struct UiManager {
     screen_size: Vec2,
     ui_elements: HashMap<String, Box<dyn UiElement>>,
@@ -247,7 +99,7 @@ impl UiManager {
         queue: Queue,
         screen_width: u32,
         screen_height: u32,
-        surface_format: wgpu::TextureFormat,
+        surface_format: TextureFormat,
     ) -> Result<Self> {
         let ui_pipeline = UiPipeline::new(device, queue, surface_format)?;
         

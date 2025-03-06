@@ -4,7 +4,7 @@ use std::collections::VecDeque;
 use serde::{Serialize, Deserialize};
 
 /// Entity position, rotation, and scale
-#[derive(Component, Debug, Clone, Copy)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Transform {
     pub position: Vec2,
     pub rotation: f32,

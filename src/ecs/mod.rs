@@ -4,12 +4,35 @@ pub mod systems;
 pub mod combat;
 pub mod init;
 
+// Add necessary imports
+use std::collections::HashMap;
 use bevy_ecs::prelude::*;
 use glam::Vec2;
 
-use crate::ecs::components::*;
-use crate::ecs::resources::*;
-use crate::game::pathfinding;
+// Import or define missing types
+#[derive(Resource)]
+pub struct GameTime {
+    pub current_tick: u64,
+    pub elapsed_time: f32,
+    pub delta_time: f32,
+}
+
+impl Default for GameTime {
+    fn default() -> Self {
+        Self {
+            current_tick: 0,
+            elapsed_time: 0.0,
+            delta_time: 1.0 / 60.0,
+        }
+    }
+}
+
+// Add init_world function
+pub fn init_world() -> World {
+    let mut world = World::new();
+    world.insert_resource(GameTime::default());
+    world
+}
 
 /// System to update entity positions based on movement components
 pub fn update_movement_system(

@@ -1,16 +1,11 @@
-pub mod units;
-pub mod buildings;
-pub mod tech;
-pub mod map;
-pub mod pathfinding;
-
 use std::collections::HashMap;
+use serde::{Serialize, Deserialize};
 use glam::Vec2;
 
 use crate::ecs::components::{UnitType, BuildingType, ResourceType};
 
 /// Game state enum to track which phase the game is in
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum GamePhase {
     MainMenu,
     Loading,
@@ -20,6 +15,83 @@ pub enum GamePhase {
 }
 
 /// Primary game state container
+#[derive(Clone, Serialize, Deserialize)]
+pub struct GameState {
+    pub phase: GamePhase,
+    pub current_tick: u64,
+    pub is_multiplayer: bool,
+    pub winner: Option<u8>,
+    pub player_count: u8,
+    pub seed: u64,
+    pub game_speed: f32,
+    
+    // Player-specific state
+    pub player_resources: HashMap<(u8, ResourceType), f32>,
+    pub player_supply: HashMap<u8, (u32, u32)>, // (current, max) supply
+    pub player_scores: HashMap<u8, u32>,
+    pub settings: GameSettings,
+}
+
+/// Game settings
+#[derive(Clone, Serialize, Deserialize)]
+pub struct GameSettings {
+    pub fog_of_war_enabled: bool,
+    pub game_speed: f32,
+    pub auto_save_enabled: bool,
+    pub auto_save_interval: f32,
+    pub show_fps: bool,
+}
+
+impl Default for GameSettings {
+    fn default() -> Self {
+        Self {
+            fog_of_war_enabled: true,
+            game_speed: 1.0,
+            auto_save_enabled: false,
+            auto_save_interval: 300.0, // 5 minutes
+            show_fps: false,
+        }
+    }
+}
+
+impl GameState {
+    pub fn new() -> Self {
+        let mut player_resources = HashMap::new();
+        let mut player_supply = HashMap::new();
+        let mut player_scores = HashMap::new();
+        
+        // Initialize default resources for 2 players
+        player_resources.insert((0, ResourceType::Mineral), 500.0);
+        player_resources.insert((0, ResourceType::Gas), 200.0);
+        player_resources.insert((0, ResourceType::Energy), 0.0);
+        
+        player_resources.insert((1, ResourceType::Mineral), 500.0);
+        player_resources.insert((1, ResourceType::Gas), 200.0);
+        player_resources.insert((1, ResourceType::Energy), 0.0);
+        
+        // Initialize supply
+        player_supply.insert(0, (0, 10));
+        player_supply.insert(1, (0, 10));
+        
+        // Initialize scores
+        player_scores.insert(0, 0);
+        player_scores.insert(1, 0);
+        
+        Self {
+            phase: GamePhase::MainMenu,
+            current_tick: 0,
+            is_multiplayer: false,
+            winner: None,
+            player_count: 2,
+            seed: 12345, // Default seed, should be randomized for real games
+            game_speed: 1.0,
+            player_resources,
+            player_supply,
+            player_scores,
+            settings: GameSettings::default(),
+        }
+    }
+    
 pub struct GameState {
     pub phase: GamePhase,
     pub current_tick: u64,
