@@ -1,5 +1,6 @@
 use glam::Vec2;
 use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
 use winit::event::{ElementState, KeyboardInput, MouseButton, VirtualKeyCode, WindowEvent};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -50,7 +51,7 @@ pub struct InputHandler {
     left_mouse_down: bool,
     right_mouse_down: bool,
     selection_start: Option<Vec2>,
-    keys_down: Vec<VirtualKeyCode>,
+    keys_down: HashSet<VirtualKeyCode>,
     pending_commands: Vec<Command>,
     shift_pressed: bool,
     ctrl_pressed: bool,
@@ -66,7 +67,7 @@ impl InputHandler {
             left_mouse_down: false,
             right_mouse_down: false,
             selection_start: None,
-            keys_down: Vec::new(),
+            keys_down: HashSet::new(),
             pending_commands: Vec::new(),
             shift_pressed: false,
             ctrl_pressed: false,
@@ -193,9 +194,8 @@ impl InputHandler {
         if let Some(keycode) = input.virtual_keycode {
             match input.state {
                 ElementState::Pressed => {
-                    if !self.keys_down.contains(&keycode) {
-                        self.keys_down.push(keycode);
-                    }
+                    // Add key to pressed keys
+                    self.keys_down.insert(keycode);
                     
                     // Update modifier key states
                     match keycode {
@@ -236,7 +236,8 @@ impl InputHandler {
                 }
                 
                 ElementState::Released => {
-                    self.keys_down.retain(|&k| k != keycode);
+                    // Remove key from pressed keys
+                    self.keys_down.remove(&keycode);
                     
                     // Update modifier key states
                     match keycode {
@@ -272,5 +273,13 @@ impl InputHandler {
     
     pub fn get_selection_rectangle(&self) -> Option<(Vec2, Vec2)> {
         self.selection_start.map(|start| (start, self.mouse_position))
+    }
+    
+    pub fn is_key_pressed(&self, key: VirtualKeyCode) -> bool {
+        self.keys_down.contains(&key)
+    }
+    
+    pub fn handle_command(&mut self, command: Command) {
+        self.pending_commands.push(command);
     }
 }
