@@ -229,24 +229,24 @@ impl Engine {
     }
     
     fn run_game_systems(&mut self) {
-        // Create a schedule
         let mut schedule = Schedule::default();
         
-        // Add systems to the schedule in the desired order
-        schedule.add_system(ecs::systems::update_movement_system);
-        schedule.add_system(ecs::systems::collision_detection_system);
-        schedule.add_system(ecs::systems::unit_behavior_system);
-        schedule.add_system(ecs::systems::building_production_system);
-        schedule.add_system(ecs::systems::resource_collection_system);
-        schedule.add_system(ecs::systems::economy_system);
-        schedule.add_system(ecs::systems::fog_of_war_system);
+        schedule.add_system(update_movement_system);
+        schedule.add_system(collision_detection_system);
+        schedule.add_system(unit_behavior_system);
+        schedule.add_system(building_production_system);
+        schedule.add_system(resource_collection_system);
+        schedule.add_system(economy_system);
+        schedule.add_system(tech_research_system);  // Add this system if not already present
+        schedule.add_system(fog_of_war_system);
         schedule.add_system(combat_system);
+        schedule.add_system(repair_system);  // Add repair system
         
         // Run the schedule
         schedule.run(&mut self.world);
         
         // Update global resources
-        let mut game_time = self.world.resource_mut::<ecs::resources::GameTime>();
+        let mut game_time = self.world.resource_mut::<GameTime>();
         game_time.current_tick += 1;
         game_time.elapsed_time += game_time.delta_time;
     }

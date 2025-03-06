@@ -179,30 +179,33 @@ impl GameState {
         }
     }
     
-    fn check_victory_conditions(&mut self) {
-        // This is a simple example - in a real game, you'd have more
-        // sophisticated victory conditions
+    fn check_victory_conditions(&mut self, world: &World) {
         let mut active_players = 0;
         let mut last_active_player = 0;
-        
-        // Count players who still have headquarters
-        // In a real implementation, this would check for actual HQ entities
-        // in the ECS world
-        for player_id in 0..self.player_count {
-            let has_hq = true; // Placeholder - would check ECS world
-            
-            if has_hq {
-                active_players += 1;
-                last_active_player = player_id;
+    
+        // Count players with active headquarters
+        let mut hq_query = world.query::<(&Building, &Owner)>();
+        let mut player_hqs: HashMap<u8, usize> = HashMap::new();
+    
+        for (building, owner) in hq_query.iter() {
+            if building.building_type == BuildingType::Headquarters && building.health > 0.0 {
+                *player_hqs.entry(owner.0).or_insert(0) += 1;
             }
         }
-        
+    
+        for (player_id, hq_count) in player_hqs.iter() {
+            if *hq_count > 0 {
+                active_players += 1;
+                last_active_player = *player_id;
+            }
+        }
+    
         // If only one player remains, they win
         if active_players == 1 {
             self.winner = Some(last_active_player);
             self.phase = GamePhase::GameOver;
         }
-        // If no players remain (could happen in FFA), game is a draw
+        // If no players remain, game is a draw
         else if active_players == 0 {
             self.phase = GamePhase::GameOver;
         }
