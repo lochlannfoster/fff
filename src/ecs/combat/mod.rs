@@ -19,3 +19,4 @@ pub mod components;
 // Re-export the combat system
 pub use systems::combat_system;
 pub use components::DamageTable;
+pub use crate::ecs::resources::*;

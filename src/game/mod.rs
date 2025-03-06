@@ -90,6 +90,7 @@ impl GameState {
             player_scores,
             settings: GameSettings::default(),
         }
+        }
     }
     
 pub struct GameState {

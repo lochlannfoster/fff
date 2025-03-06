@@ -1,18 +1,7 @@
 use glam::Vec2;
 use std::collections::HashMap;
 
-use crate::ui::{
-    UiElement, 
-    UiPipeline, 
-    Button as UiButton, 
-    Panel, 
-    Label, 
-    Checkbox, 
-    Slider, 
-    Dropdown,
-    UiColorScheme,
-    UiAlignment
-};
+use crate::ui::{UiElement, UiColorScheme, UiAlignment};
 
 /// Creates pre-defined menu layouts
 pub struct MenuFactory {

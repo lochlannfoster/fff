@@ -14,8 +14,7 @@ use std::collections::HashSet;
 use crate::ecs::components::*;
 use crate::ecs::resources::*;
 use crate::game::{GamePhase, GameState};
-use crate::ui::menus::autobattler_factory::AutobattlerMenuFactory;
-
+// TODO: Implement autobattler menu factory
 
 const TICK_RATE: f64 = 20.0; // 20 ticks per second
 const MS_PER_TICK: f64 = 1000.0 / TICK_RATE;
@@ -121,7 +120,7 @@ fn initialize_autobattler(
     };
     
     let game_map = game::map::generate_map(&map_params);
-    world.insert_resource(game_map);
+    world.insert_resource(DamageTable::default());
 
     // Player starting positions
     let start_positions = [

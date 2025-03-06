@@ -1,13 +1,19 @@
 pub mod components;
 pub mod resources;
 pub mod systems;
-pub mod combat;
+pub mod combat {
+    pub mod components;
+    pub mod systems;
+}
 pub mod init;
 
 // Add necessary imports
 use std::collections::HashMap;
 use bevy_ecs::prelude::*;
 use glam::Vec2;
+use crate::ecs::combat::systems::*;
+
+
 
 // Import or define missing types
 #[derive(Resource)]
@@ -27,7 +33,6 @@ impl Default for GameTime {
     }
 }
 
-// Add init_world function
 pub fn init_world() -> World {
     let mut world = World::new();
     world.insert_resource(GameTime::default());

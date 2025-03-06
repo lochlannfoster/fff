@@ -1,6 +1,7 @@
 use glam::Vec2;
-use pathfinding::prelude::{astar, absdiff};
+use pathfinding::prelude::astar;
 use std::collections::{HashMap, HashSet};
+
 
 use crate::ecs::resources::{GameMap, PathfindingGrid, PathNode};
 
