@@ -1,8 +1,7 @@
-pub mod combat;
-pub mod combat;
 pub mod components;
 pub mod resources;
 pub mod systems;
+pub mod combat;
 pub mod init;
 
 use bevy_ecs::prelude::*;

@@ -9,6 +9,7 @@ use winit::window::Window;
 use bevy_ecs::world::World;
 use glam::{Vec2, Vec4, Mat4};
 use std::collections::HashMap;
+use wgpu::util::DeviceExt;
 
 use crate::ecs::components::{Transform, Unit, Building, Owner, Resource, MinimapMarker, UnitType, BuildingType, ResourceType, Selected};
 use crate::ui::UiManager;
